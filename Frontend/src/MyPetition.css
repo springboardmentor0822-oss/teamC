@@ -1,0 +1,251 @@
+.my-petition-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+.my-petition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.my-petition-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.my-petition-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.my-petition-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+
+.my-petition-summary-chip strong {
+  font-weight: 700;
+}
+
+/* List */
+.my-petition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Card */
+.my-petition-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 18px 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  transition: transform 0.16s ease, box-shadow 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.my-petition-card:hover {
+  transform: translateY(-1px);
+  border-color: #cbd5f5;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+/* Card header */
+.my-petition-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.my-petition-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Status badge */
+.my-status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.my-status-pending {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #facc15;
+}
+
+.my-status-open {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #22c55e;
+}
+
+.my-status-closed,
+.my-status-resolved {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Description */
+.my-petition-description {
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+/* Meta */
+.my-petition-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.my-meta-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+.my-meta-dot {
+  color: #d1d5db;
+}
+
+.my-meta-text {
+  color: #6b7280;
+}
+
+/* Progress */
+.my-petition-progress-row {
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.my-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.my-progress-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.my-progress-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.my-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.my-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  transition: width 0.25s ease-in-out;
+}
+
+/* Actions */
+.my-petition-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.my-delete-btn {
+  border-radius: 999px;
+  border: 1px solid #fecaca;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: 0.16s ease;
+}
+
+.my-delete-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #7f1d1d;
+}
+
+/* Empty state */
+.my-empty-state {
+  margin-top: 24px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  border: 1px dashed #d1d5db;
+  background: #f9fafb;
+  text-align: center;
+}
+
+.my-empty-state h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.my-empty-state p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .my-petition-page {
+    padding: 20px 16px;
+  }
+
+  .my-petition-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .my-petition-card {
+    padding: 14px 14px 12px;
+  }
+
+  .my-petition-card-title {
+    font-size: 15px;
+  }
+}

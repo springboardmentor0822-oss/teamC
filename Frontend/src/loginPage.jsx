@@ -221,30 +221,28 @@ function LoginPage() {
       onChange={handleChange}
     />
 
-    <label>I am registering as</label>
-    <div className="radio-group">
-      <label>
-        <input
-          type="radio"
-          name="role"
-          value="citizen"
-          checked={formData.role === "citizen"}
-          onChange={handleChange}
-        />
-        Citizen
-      </label>
+    <label className="field-label">Register as</label>
+<div className="role-toggle">
+  <button
+    type="button"
+    className={`role-option ${formData.role === "citizen" ? "selected" : ""}`}
+    onClick={() => handleChange({ target: { name: "role", value: "citizen" } })}
+  >
+    <span className="role-title">Community member</span>
+    <span className="role-desc">Create and support local petitions</span>
+  </button>
 
-      <label>
-        <input
-          type="radio"
-          name="role"
-          value="official"
-          checked={formData.role === "official"}
-          onChange={handleChange}
-        />
-        Public Official
-      </label>
-    </div>
+  <button
+    type="button"
+    className={`role-option ${formData.role === "official" ? "selected" : ""}`}
+    onClick={() => handleChange({ target: { name: "role", value: "official" } })}
+  >
+    <span className="role-title">Government official</span>
+    <span className="role-desc">Respond to public issues and feedback</span>
+  </button>
+</div>
+
+
      {formData.role === "official" && (
       <>
         <label>Enter Your ID</label>
@@ -262,30 +260,28 @@ function LoginPage() {
 
            {isLogin && (
   <>
-    <label>I am logging in as</label>
-    <div className="radio-group">
-      <label>
-        <input
-          type="radio"
-          name="role"
-          value="citizen"
-          checked={formData.role === "citizen"}
-          onChange={handleChange}
-        />
-        Citizen
-      </label>
+    <label className="field-label">Sign in as</label>
+<div className="role-toggle">
+  <button
+    type="button"
+    className={`role-option ${formData.role === "citizen" ? "selected" : ""}`}
+    onClick={() => handleChange({ target: { name: "role", value: "citizen" } })}
+  >
+    <span className="role-title">Community member</span>
+    <span className="role-desc">Use your citizen account</span>
+  </button>
 
-      <label>
-        <input
-          type="radio"
-          name="role"
-          value="official"
-          checked={formData.role === "official"}
-          onChange={handleChange}
-        />
-        Public Official
-      </label>
-    </div>
+  <button
+    type="button"
+    className={`role-option ${formData.role === "official" ? "selected" : ""}`}
+    onClick={() => handleChange({ target: { name: "role", value: "official" } })}
+  >
+    <span className="role-title">Government official</span>
+    <span className="role-desc">Use your official ID</span>
+  </button>
+</div>
+
+
 
     <label>Email</label>
     <input
