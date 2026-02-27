@@ -1,24 +1,58 @@
 const express = require("express");
-const { protect, authorize } = require("../middleware/authMiddleware");
+const router = express.Router();
+
+
 const {
   createPetition,
   getPetitions,
   signPetition,
   respondToPetition,
+  getMyPetitions,
+  deletePetition,
 } = require("../controllers/petitionController");
 
-const router = express.Router();
+const { protect, authorize } = require("../middleware/authMiddleware");
+const { getStats } = require("../controllers/dashboardController");
 
 // Create petition (citizen only)
-router.post("/", protect, authorize("citizen"), createPetition);
+router.post(
+  "/",
+  protect,
+  authorize("citizen"),
+  createPetition
+);
 
 // Get all petitions (public)
-router.get("/", getPetitions);
+router.get("/", protect, getPetitions);
 
 // Sign petition (citizen only)
-router.post("/:id/sign", protect, authorize("citizen"), signPetition);
+router.post(
+  "/:id/sign",
+  protect,
+  authorize("citizen"),
+  signPetition
+);
 
-// Official respond to petition
-router.post("/:id/respond", protect, authorize("official"), respondToPetition);
+// Official respond (official only)
+router.post(
+  "/:id/respond",
+  protect,
+  authorize("official"),
+  respondToPetition
+);
+
+router.get(
+  "/my",
+  protect,
+  authorize("citizen"),
+  getMyPetitions
+);
+
+router.delete(
+  "/:id",
+  protect,
+  authorize("citizen"),
+  deletePetition
+);
 
 module.exports = router;

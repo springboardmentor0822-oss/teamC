@@ -1,0 +1,17 @@
+.official-page{
+ padding:30px;
+}
+
+.petition-card{
+ padding:15px;
+ border:1px solid #ddd;
+ margin-bottom:15px;
+ cursor:pointer;
+ border-radius:10px;
+}
+
+textarea{
+ width:100%;
+ height:120px;
+ margin:10px 0;
+}
