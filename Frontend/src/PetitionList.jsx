@@ -80,9 +80,8 @@ useEffect(() => {
   }
 };
 
-  // =====================================================
-  // 🔥 DETAIL VIEW MODE
-  // =====================================================
+
+  // ================= DETAIL VIEW =================
   if (selectedPetition) {
     const progress =
       (selectedPetition.signatures.length /
@@ -90,191 +89,276 @@ useEffect(() => {
       100;
 
     return (
-      <div className="petition-detail">
-        <button onClick={() => setSelectedPetition(null)}>
-          ← Back
-        </button>
-
-        <h2>{selectedPetition.title}</h2>
-        <p>{selectedPetition.description}</p>
-
-        <div className="meta">
-          <span>{selectedPetition.category}</span>
-          <span>{selectedPetition.location}</span>
-          <span className={`status ${selectedPetition.status}`}>
-            {selectedPetition.status}
-          </span>
-        </div>
-
-        <div className="progress-bar">
-          <div
-            className="progress"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-
-        <p>
-          {selectedPetition.signatures.length} /{" "}
-          {selectedPetition.signatureGoal} signatures
-        </p>
-
-        {selectedPetition.status === "active" && (
+      <div className="petition-detail-page">
+        <div className="detail-header">
           <button
-            onClick={async () => {
-              await handleSign(selectedPetition._id);
-              setSelectedPetition(null);
-            }}
+            className="back-btn"
+            onClick={() => setSelectedPetition(null)}
           >
-            Sign Petition
+            ← Back
           </button>
-        )}
 
-        <h3>Official Responses</h3>
+          <div className="detail-meta-top">
+            <span className="detail-location">
+              {selectedPetition.location}
+            </span>
+            <span className={`detail-status-pill ${selectedPetition.status}`}>
+              {selectedPetition.status.replace("_", " ")}
+            </span>
+          </div>
+        </div>
 
-        {userRole === "official" && selectedPetition.status !== "closed" && (
-  <div className="official-response">
-    {/* <h3>Respond to Petition</h3> */}
+        <div className="detail-card">
+          <h2 className="detail-title">{selectedPetition.title}</h2>
+          <p className="detail-subtitle">
+            {selectedPetition.description}
+          </p>
 
-    <textarea
-      placeholder="Write your response..."
-      value={officialMessage}
-      onChange={(e) => setOfficialMessage(e.target.value)}
-    />
+          <div className="detail-meta-row">
+            <span className="detail-chip">
+              {selectedPetition.category}
+            </span>
+          </div>
 
-    <select
-      value={statusUpdate}
-      onChange={(e) => setStatusUpdate(e.target.value)}
-    >
-      <option value="">No Status Change</option>
-      <option value="under_review">Under Review</option>
-      <option value="closed">Close Petition</option>
-    </select>
+          <div className="detail-progress-row">
+            <div className="progress-bar detail-progress-bar">
+              <div
+                className="progress"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <p className="detail-progress-text">
+              {selectedPetition.signatures.length} /{" "}
+              {selectedPetition.signatureGoal} signatures
+            </p>
+          </div>
 
-    <button
-      onClick={async () => {
-        try {
-          await axios.post(
-            `http://localhost:5000/api/petitions/${selectedPetition._id}/respond`,
-            {
-              message: officialMessage,
-              statusUpdate,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          {selectedPetition.status === "active" && (
+            <button
+              className="primary-btn"
+              onClick={async () => {
+                await handleSign(selectedPetition._id);
+                setSelectedPetition(null);
+              }}
+            >
+              Sign Petition
+            </button>
+          )}
+        </div>
 
-          alert("Response submitted");
+        <div className="detail-sections">
+          <div className="detail-section-card">
+            <h3 className="section-title">Official Responses</h3>
 
-          setOfficialMessage("");
-          setStatusUpdate("");
-          setSelectedPetition(null);
+            {userRole === "official" &&
+              selectedPetition.status !== "closed" && (
+                <div className="official-response">
+                  <textarea
+                    className="official-textarea"
+                    placeholder="Write your response..."
+                    value={officialMessage}
+                    onChange={(e) =>
+                      setOfficialMessage(e.target.value)
+                    }
+                  />
 
-        } catch (error) {
-          alert(error.response?.data?.message);
-        }
-      }}
-    >
-      Submit Response
-    </button>
-  </div>
-)}
+                  <div className="official-controls">
+                    <select
+                      className="official-select"
+                      value={statusUpdate}
+                      onChange={(e) =>
+                        setStatusUpdate(e.target.value)
+                      }
+                    >
+                      <option value="">No Status Change</option>
+                      <option value="under_review">
+                        Under Review
+                      </option>
+                      <option value="closed">Close Petition</option>
+                    </select>
 
-        {selectedPetition.responses.length === 0 && (
-          <p>No responses yet.</p>
-        )}
+                    <button
+                      className="primary-btn"
+                      onClick={async () => {
+                        try {
+                          await axios.post(
+                            `http://localhost:5000/api/petitions/${selectedPetition._id}/respond`,
+                            {
+                              message: officialMessage,
+                              statusUpdate,
+                            },
+                            {
+                              headers: {
+                                Authorization: `Bearer ${token}`,
+                              },
+                            }
+                          );
 
-        <h3>Petition Timeline</h3>
+                          alert("Response submitted");
 
-<div className="timeline">
+                          setOfficialMessage("");
+                          setStatusUpdate("");
+                          setSelectedPetition(null);
+                        } catch (error) {
+                          alert(
+                            error.response?.data?.message
+                          );
+                        }
+                      }}
+                    >
+                      Submit Response
+                    </button>
+                  </div>
+                </div>
+              )}
 
-  {/* Petition Created */}
-  <div className="timeline-item">
-    <strong>Petition Created</strong>
-    <p>
-      by {selectedPetition.createdBy?.name}
-    </p>
-  </div>
+            {selectedPetition.responses.length === 0 && (
+              <p className="muted-text">
+                No responses yet.
+              </p>
+            )}
 
-  {/* Official Responses */}
-  {selectedPetition.responses.length === 0 && (
-    <p>No official actions yet.</p>
-  )}
+            {selectedPetition.responses.length > 0 && (
+              <div className="responses-list">
+                {selectedPetition.responses.map(
+                  (response, index) => (
+                    <div
+                      key={index}
+                      className="response-item"
+                    >
+                      <div className="response-header">
+                        <span className="response-pill">
+                          Official Response
+                        </span>
+                        <span className="response-status">
+                          {response.statusUpdate}
+                        </span>
+                      </div>
+                      <p>{response.message}</p>
+                      <small className="response-meta">
+                        By {response.official?.name} •{" "}
+                        {new Date(
+                          response.respondedAt
+                        ).toLocaleString()}
+                      </small>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
 
-  {selectedPetition.responses.map((response, index) => (
-    <div key={index} className="timeline-item">
+          <div className="detail-section-card">
+            <h3 className="section-title">Petition Timeline</h3>
 
-      <strong>Official Response</strong>
+            <div className="timeline">
+              <div className="timeline-item">
+                <div className="timeline-dot" />
+                <div className="timeline-content">
+                  <strong>Petition Created</strong>
+                  <p>
+                    by {selectedPetition.createdBy?.name}
+                  </p>
+                </div>
+              </div>
 
-      <p>{response.message}</p>
+              {selectedPetition.responses.length === 0 && (
+                <p className="muted-text">
+                  No official actions yet.
+                </p>
+              )}
 
-      <small>
-        Status Updated: {response.statusUpdate}
-      </small>
-
-      <br />
-
-      <small>
-        By: {response.official?.name}
-      </small>
-
-      <br />
-
-      <small>
-        {new Date(response.respondedAt).toLocaleString()}
-      </small>
-
-    </div>
-  ))}
-
-</div>
+              {selectedPetition.responses.map(
+                (response, index) => (
+                  <div
+                    key={index}
+                    className="timeline-item"
+                  >
+                    <div className="timeline-dot timeline-dot-secondary" />
+                    <div className="timeline-content">
+                      <strong>Official Response</strong>
+                      <p>{response.message}</p>
+                      <small>
+                        Status Updated:{" "}
+                        {response.statusUpdate}
+                      </small>
+                      <br />
+                      <small>
+                        By: {response.official?.name}
+                      </small>
+                      <br />
+                      <small>
+                        {new Date(
+                          response.respondedAt
+                        ).toLocaleString()}
+                      </small>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // =====================================================
-  // 🔥 LIST VIEW MODE
-  // =====================================================
+  // ================= LIST VIEW =================
   return (
     <div className="petition-page">
-      <h2>Petitions</h2>
+      <div className="petition-page-header">
+        <h2>Petitions</h2>
+        <p className="muted-text">
+          Explore, filter and sign petitions from your community.
+        </p>
+      </div>
 
       {/* FILTERS */}
       <div className="filters">
-        <select onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All Categories</option>
-          <option value="Infrastructure">Infrastructure</option>
-          <option value="Health">Health</option>
-          <option value="Education">Education</option>
-          <option value="Environment">Environment</option>
-          <option value="Governance">Governance</option>
-          <option value="Social">Social</option>
-          <option value="Economy">Economy</option>
-          <option value="Culture">Culture</option>
-          <option value="Sports">Sports</option>
-          <option value="Technology">Technology</option>
-          <option value="Human Rights">Human Rights</option>
-          <option value="Public Safety">Public Safety</option>
-          <option value="Transportation">Transportation</option>
-          <option value="Other">Other</option>
-        </select>
+        <div className="filter-group">
+          <label>Category</label>
+          <select
+            className="filter-select"
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            <option value="Infrastructure">Infrastructure</option>
+            <option value="Health">Health</option>
+            <option value="Education">Education</option>
+            <option value="Environment">Environment</option>
+            <option value="Governance">Governance</option>
+            <option value="Social">Social</option>
+            <option value="Economy">Economy</option>
+            <option value="Culture">Culture</option>
+            <option value="Sports">Sports</option>
+            <option value="Technology">Technology</option>
+            <option value="Human Rights">Human Rights</option>
+            <option value="Public Safety">Public Safety</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
 
-        <select onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="under_review">Under Review</option>
-          <option value="closed">Closed</option>
-        </select>
+        <div className="filter-group">
+          <label>Status</label>
+          <select
+            className="filter-select"
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="under_review">Under Review</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
 
-        <label>
+        <label className="filter-checkbox">
           <input
             type="checkbox"
             checked={myLocation}
             onChange={() => setMyLocation(!myLocation)}
           />
-          My Location Only
+          <span>My location only</span>
         </label>
       </div>
 
@@ -292,42 +376,64 @@ useEffect(() => {
               className="petition-card"
               onClick={() => setSelectedPetition(petition)}
             >
-              <h3>{petition.title}</h3>
-              <p>{petition.description}</p>
-
-              <div className="meta">
-                <span>{petition.category}</span>
-                <span>{petition.location}</span>
-                <span className={`status ${petition.status}`}>
-                  {petition.status}
+              <div className="card-header-row">
+                <h3>{petition.title}</h3>
+                <span
+                  className={`status-pill ${petition.status}`}
+                >
+                  {petition.status.replace("_", " ")}
                 </span>
               </div>
 
-              <div className="progress-bar">
-                <div
-                  className="progress"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-
-              <p>
-                {petition.signatures.length} /{" "}
-                {petition.signatureGoal} signatures
+              <p className="card-description">
+                {petition.description}
               </p>
 
-              {petition.status === "active" && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSign(petition._id);
-                  }}
-                >
-                  Sign Petition
-                </button>
-              )}
+              <div className="meta">
+                <span className="chip">
+                  {petition.category}
+                </span>
+                <span className="chip chip-light">
+                  {petition.location}
+                </span>
+              </div>
+
+              <div className="card-footer">
+                <div className="progress-bar">
+                  <div
+                    className="progress"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                <div className="signature-row">
+                  <span className="signature-count">
+                    {petition.signatures.length} /{" "}
+                    {petition.signatureGoal} signatures
+                  </span>
+
+                  {petition.status === "active" && (
+                    <button
+                      className="sign-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSign(petition._id);
+                      }}
+                    >
+                      Sign
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           );
         })}
+
+        {petitions.length === 0 && (
+          <div className="empty-state">
+            <p>No petitions match these filters.</p>
+          </div>
+        )}
       </div>
     </div>
   );
