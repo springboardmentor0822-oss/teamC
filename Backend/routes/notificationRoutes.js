@@ -3,11 +3,13 @@ const router = express.Router();
 
 const {
     getNotifications,
-    markAsRead
+    markAsRead,
+    getUnreadCount
 } = require("../controllers/notificationController");
 
 const { protect } = require("../middleware/authMiddleware");
 
 router.get("/", protect, getNotifications);
 router.put("/:id/read", protect, markAsRead);
+router.get("/unread-count", protect, getUnreadCount);
 module.exports = router;

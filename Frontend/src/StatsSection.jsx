@@ -52,17 +52,17 @@ function StatsSection() {
     <div className="stats-section">
 
       <div className="stat-card">
-        <h3>{stats.myPetitions}</h3>
+        <h3>{stats.total}</h3>
         <p>My Petitions</p>
       </div>
 
       <div className="stat-card">
-        <h3>{stats.successfulPetitions}</h3>
+        <h3>{stats.closed}</h3>
         <p>Successful Petitions</p>
       </div>
 
       <div className="stat-card">
-        <h3>{stats.pollsCreated}</h3>
+        <h3>0</h3>
         <p>Polls Created</p>
       </div>
 

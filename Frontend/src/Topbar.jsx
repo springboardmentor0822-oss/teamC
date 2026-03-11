@@ -1,104 +1,189 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import {
   FaUserCircle,
   FaBell,
   FaSignOutAlt,
   FaTimes,
-  FaCheck
+  FaCheck,
+  FaUser
 } from "react-icons/fa";
-import "./Topbar.css"; // Import the improved CSS
+
+import "./Topbar.css";
+import socket from "./socket";
 
 function Topbar() {
+
   const navigate = useNavigate();
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [profileImage, setProfileImage] = useState(localStorage.getItem("profileImage"));
+
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const fileInputRef = useRef(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  // ✅ Decode user from JWT
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const profileRef = useRef(null);
+
   const token = localStorage.getItem("accessToken");
-  let user = {};
 
-  if (token) {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    user = payload;
-  }
+  /* ================= USER FROM JWT ================= */
 
-  // ================= FETCH NOTIFICATIONS =================
+  const user = useMemo(() => {
+    try {
+      if (!token) return {};
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      return {};
+    }
+  }, [token]);
+
+  /* ================= REALTIME SOCKET ================= */
+
   useEffect(() => {
+
+    socket.on("newNotification", (notification) => {
+
+      setNotifications(prev =>
+        [notification, ...prev]
+      );
+
+      setUnreadCount(prev => prev + 1);
+    });
+
+    return () =>
+      socket.off("newNotification");
+
+  }, []);
+
+  /* ================= FETCH NOTIFICATIONS ================= */
+
+  useEffect(() => {
+
+    if (!token) return;
+
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
     const fetchNotifications = async () => {
+
       try {
+
         const res = await axios.get(
           "http://localhost:5000/api/notifications",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
+          { headers }
         );
+
         setNotifications(res.data);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    const fetchUnread = async () => {
+
+      try {
+
+        const res = await axios.get(
+          "http://localhost:5000/api/notifications/unread-count",
+          { headers }
+        );
+
+        setUnreadCount(res.data.count);
+
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchNotifications();
+    fetchUnread();
+
+    const interval =
+      setInterval(fetchUnread, 30000);
+
+    return () =>
+      clearInterval(interval);
+
   }, [token]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  /* ================= CLOSE DROPDOWN ON OUTSIDE CLICK ================= */
 
-  // ================= LOGOUT =================
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    navigate("/");
-  };
+  useEffect(() => {
 
-  // ================= PROFILE IMAGE =================
-  const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
+    const handleClickOutside = (e) => {
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target)
+      ) {
+        setShowProfileMenu(false);
+      }
 
-    const imageURL = URL.createObjectURL(file);
-    setProfileImage(imageURL);
-    // ✅ persist after refresh
-    localStorage.setItem("profileImage", imageURL);
-  };
+    };
 
-  // ================= MARK READ =================
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+
+  }, []);
+
+  /* ================= MARK NOTIFICATION READ ================= */
+
   const markRead = async (id) => {
-    await axios.put(
-      `http://localhost:5000/api/notifications/${id}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
 
-    const res = await axios.get(
-      "http://localhost:5000/api/notifications",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+    try {
 
-    setNotifications(res.data);
+      await axios.put(
+        `http://localhost:5000/api/notifications/${id}/read`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setNotifications(prev =>
+        prev.map(n =>
+          n._id === id
+            ? { ...n, read: true }
+            : n
+        )
+      );
+
+      setUnreadCount(prev =>
+        Math.max(prev - 1, 0)
+      );
+
+    } catch {
+      console.error("Mark read failed");
+    }
+  };
+
+  /* ================= LOGOUT ================= */
+
+  const handleLogout = () => {
+
+    localStorage.clear();
+    navigate("/");
+
   };
 
   return (
     <>
       <div className="topbar">
+
         {/* LOGO */}
         <div className="topbar-left">
           <h2 className="logo">
@@ -108,127 +193,166 @@ function Topbar() {
 
         {/* RIGHT SIDE */}
         <div className="profile-container">
-          {/* 🔔 NOTIFICATION */}
-          <div className="notification-wrapper" onClick={() => setShowNotifications(!showNotifications)}>
-            <div className="notification-icon-container">
-              <FaBell className="bell-icon" />
-              {unreadCount > 0 && (
-                <span className="notif-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
-              )}
-            </div>
+
+          {/* NOTIFICATIONS */}
+          <div
+            className="notification-wrapper"
+            onClick={() =>
+              setShowNotifications(!showNotifications)
+            }
+          >
+
+            <FaBell className="bell-icon" />
+
+            {unreadCount > 0 && (
+              <span className="notif-badge">
+                {unreadCount > 99
+                  ? "99+"
+                  : unreadCount}
+              </span>
+            )}
 
             {showNotifications && (
+
               <div className="notification-dropdown">
-                <div className="notification-header">
-                  <h4>Notifications</h4>
-                  <span className="notification-count">{unreadCount} unread</span>
-                </div>
-                
+
+                <h4>Notifications</h4>
+
                 {notifications.length === 0 ? (
-                  <div className="empty-notifications">
-                    <div className="empty-icon">📭</div>
-                    <p>No notifications yet</p>
-                  </div>
+                  <p className="empty">
+                    No notifications yet
+                  </p>
                 ) : (
-                  <div className="notifications-list">
-                    {notifications.slice(0, 5).map(n => (
+
+                  notifications
+                    .slice(0, 5)
+                    .map(n => (
+
                       <div
                         key={n._id}
-                        className={`notif-item ${n.read ? 'read' : 'unread'}`}
-                        onClick={() => markRead(n._id)}
+                        className={`notif-item ${
+                          n.read ? "read" : "unread"
+                        }`}
+                        onClick={() =>
+                          markRead(n._id)
+                        }
                       >
-                        <div className="notif-content">
-                          <div className="notif-icon">
-                            {n.read ? '✓' : '🔔'}
-                          </div>
-                          <div className="notif-message">
-                            {n.message}
-                          </div>
-                        </div>
-                        {!n.read && <div className="mark-read-btn">Mark Read</div>}
+                        {n.read ? "✓" : "🔔"} {n.message}
                       </div>
-                    ))}
-                    {notifications.length > 5 && (
-                      <div className="more-notifications">
-                        +{notifications.length - 5} more
-                      </div>
-                    )}
-                  </div>
+
+                    ))
+
                 )}
+
               </div>
             )}
+
           </div>
 
-          {/* PROFILE IMAGE */}
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleImageChange}
-          />
+          {/* PROFILE MENU */}
 
-          <div className="profile-section" onClick={handleImageClick}>
-            {profileImage ? (
-              <div className="profile-image-container">
-                <img
-                  src={profileImage}
-                  alt="profile"
-                  className="profile-img"
-                />
-                <div className="profile-camera-overlay">📷</div>
+          <div
+            className="profile-section"
+            ref={profileRef}
+          >
+
+            <div
+              className="profile-avatar"
+              onClick={() =>
+                setShowProfileMenu(!showProfileMenu)
+              }
+            >
+
+              <FaUserCircle size={35} />
+
+            </div>
+
+            {showProfileMenu && (
+
+              <div className="profile-dropdown">
+
+                <div className="profile-name">
+                  {user.name || "User"}
+                </div>
+
+                <button
+                  onClick={() =>
+                    navigate("/profile")
+                  }
+                >
+                  <FaUser /> Profile
+                </button>
+
+                <button
+                  onClick={() =>
+                    setShowConfirm(true)
+                  }
+                >
+                  <FaSignOutAlt /> Logout
+                </button>
+
               </div>
-            ) : (
-              <div className="default-profile-container">
-                <FaUserCircle className="default-profile-icon" />
-                <div className="profile-camera-overlay">📷</div>
-              </div>
+
             )}
+
           </div>
 
           {/* USER INFO */}
           <div className="profile-info">
+
             <div className="role-badge">
-              {user.role?.toUpperCase() || 'USER'}
+              {user.role?.toUpperCase() || "USER"}
             </div>
-            <div className="location">{user.location || 'Gurugram'}</div>
+
+            <div className="location">
+              {user.location || "India"}
+            </div>
+
           </div>
 
-          {/* LOGOUT */}
-          <button className="logout-btn" onClick={() => setShowConfirm(true)} title="Logout">
-            <FaSignOutAlt />
-          </button>
         </div>
       </div>
 
+      {/* LOGOUT MODAL */}
+
       {showConfirm && (
-        <div className="modal-overlay" onClick={() => setShowConfirm(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <FaSignOutAlt className="modal-icon" />
-              <h3>Confirm Logout</h3>
-            </div>
-            <p className="modal-message">
-              Are you sure you want to log out? You'll need to sign in again to continue.
+
+        <div className="modal-overlay">
+
+          <div className="logout-modal">
+
+            <h3>Logout?</h3>
+
+            <p>
+              Are you sure you want to logout?
             </p>
 
             <div className="modal-actions">
+
               <button
                 className="cancel-btn"
-                onClick={() => setShowConfirm(false)}
+                onClick={() =>
+                  setShowConfirm(false)
+                }
               >
                 <FaTimes /> Cancel
               </button>
+
               <button
-                className="confirm-btn"
+                className="logout-confirm"
                 onClick={handleLogout}
               >
                 <FaCheck /> Logout
               </button>
+
             </div>
+
           </div>
+
         </div>
+
       )}
+
     </>
   );
 }

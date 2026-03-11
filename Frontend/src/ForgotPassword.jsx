@@ -3,6 +3,8 @@ import axios from "axios";
 import "./ForgotPassword.css";
 import { Link } from "react-router-dom";
 
+const API_BASE = "http://localhost:5000/api";
+
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -15,27 +17,28 @@ function ForgotPassword() {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+
+    setError("");
+    setSuccess("");
+
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     try {
-      setError("");
-      setSuccess("");
-
-      if (!validateEmail(email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
-        { email }
+        `${API_BASE}/auth/forgot-password`,
+        { email: email.trim().toLowerCase() }
       );
 
-      setSuccess(res.data.message);
-
+      setSuccess(res.data.message || "Reset link sent to your email.");
     } catch (err) {
       setError(
-        err.response?.data?.message || "Something went wrong"
+        err.response?.data?.message || "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);

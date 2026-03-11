@@ -41,6 +41,10 @@ const petitionSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    signaturescount: {
+      type: Number,
+      default: 0
+    },
     responses: [
       {
         official: {

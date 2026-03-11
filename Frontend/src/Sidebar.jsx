@@ -18,9 +18,9 @@ function Sidebar({ activePage, setActivePage }) {
           Petitions
         </li>
 
-        <li onClick={() => setActivePage("petitions")}>
+        {/* <li onClick={() => setActivePage("petitions")}>
           Browse Petitions
-        </li>
+        </li> */}
 
         <li onClick={() => setActivePage("myPetitions")}>
           My Petitions

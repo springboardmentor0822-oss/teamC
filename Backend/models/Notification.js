@@ -13,6 +13,17 @@ const notificationSchema = new mongoose.Schema({
             required: true
         },
 
+        type: {
+            type: String,
+            enum: [
+                "PETITION_SIGNED",
+                "STATUS_UPDATED",
+                "PETITION_APPROVED",
+                "PETITION_REJECTED"
+            ],
+            required: true
+    },
+
         petition: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Petition',

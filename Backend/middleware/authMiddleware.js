@@ -37,17 +37,19 @@ exports.protect = async (req, res, next) => {
 
 exports.authorize = (...roles) => {
   return (req, res, next) => {
+
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    if (req.user.role === "official" && !req.user.isVerified) {
+    if (req.user.role === "official" && !req.user.isOfficialVerified) {
       return res.status(403).json({
         message: "Official not verified yet",
       });
     }
 
     next();
+
   };
 };
 

@@ -1,77 +1,152 @@
+// ================= IMPORTS =================
+
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
+const jwt = require("jsonwebtoken");
+
+const http = require("http");
+const { Server } = require("socket.io");
+
+const notificationService =
+require("./services/notificationService");
+
+// routes
+const authRoutes = require("./routes/authRoutes");
+const petitionRoutes = require("./routes/petitionRoutes");
 const officialRoutes = require("./routes/officialRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const userRoutes = require("./routes/userRoutes");
+const pollRoutes = require("./routes/pollRoutes");
 
-// Load environment variables
+// ================= ENV =================
+
 dotenv.config();
 
-// Create express app
+// ================= EXPRESS APP =================
+
 const app = express();
 
-// ---------------------
-// Middleware
-// ---------------------
+// ================= HTTP SERVER =================
+
+const server = http.createServer(app);
+
+// ================= SOCKET.IO =================
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
+app.set("io", io)
+
+// ================= SOCKET AUTH CONNECTION =================
+
+io.on("connection", (socket) => {
+
+  try {
+
+    const token = socket.handshake.auth?.token;
+
+    if (!token) {
+      socket.disconnect();
+      return;
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    const userId = decoded.id;
+
+    // ✅ JOIN ROOM NAMED AFTER USER
+    socket.join(userId);
+
+    console.log(
+      "✅ User joined room:",
+      userId
+    );
+
+    socket.on("disconnect", () => {
+      console.log(
+        "❌ Socket disconnected:",
+        socket.id
+      );
+    });
+
+  } catch (err) {
+
+    console.log("❌ Socket auth failed");
+    console.log("Error:", err.message);
+
+    socket.disconnect();
+
+  }
+
+});
+// ================= MIDDLEWARE =================
 
 app.use(cors());
-app.use(express.json()); // Parse JSON body
-app.use(helmet()); // Add security headers
+app.use(express.json());
+app.use(helmet());
 
-// ---------------------
-// Database Connection
-// ---------------------
+// ================= DATABASE =================
 
 mongoose.connect(process.env.MONGO_URL)
-  .then(() => {
-    console.log("MongoDB Connected");
-  })
+  .then(() => console.log("✅ MongoDB Connected"))
   .catch((error) => {
-    console.error("MongoDB Connection Failed:", error);
+    console.error(
+      "MongoDB Connection Failed:",
+      error
+    );
     process.exit(1);
   });
 
-// ---------------------
-// Routes
-// ---------------------
-
-const authRoutes = require("./routes/authRoutes");
-const petitionRoutes = require("./routes/petitionRoutes");
+// ================= ROUTES =================
 
 app.use("/api/auth", authRoutes);
 app.use("/api/petitions", petitionRoutes);
 app.use("/api/officials", officialRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/notifications", require("./routes/notificationRoutes"));
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/users", userRoutes);
+app.use("/uploads", express.static("uploads"));
+app.use("/api/polls", pollRoutes);
 
-// ---------------------
-// Health Check Route
-// ---------------------
+// ================= HEALTH CHECK =================
 
 app.get("/", (req, res) => {
-  res.json({ message: "API is running..." });
+  res.json({ message: "API running ✅" });
 });
 
-// ---------------------
-// Error Handling Middleware
-// ---------------------
+// ================= ERROR HANDLER =================
 
 app.use((err, req, res, next) => {
+
   console.error(err);
-  
-  res.status(err.statusCode || 500).json({
-    message: err.message || "Internal Server Error"
-  });
+
+  res.status(err.statusCode || 500)
+     .json({
+       message:
+       err.message ||
+       "Internal Server Error"
+     });
+
 });
 
-// ---------------------
-// Start Server
-// ---------------------
+// ================= START SERVER =================
 
-const PORT = process.env.PORT || 5000;
+const PORT =
+process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(
+    `🚀 Server running on port ${PORT}`
+  );
 });

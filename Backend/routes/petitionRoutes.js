@@ -9,6 +9,8 @@ const {
   respondToPetition,
   getMyPetitions,
   deletePetition,
+  updatePetition,
+  getPetitionById,
 } = require("../controllers/petitionController");
 
 const { protect, authorize } = require("../middleware/authMiddleware");
@@ -44,9 +46,10 @@ router.post(
 router.get(
   "/my",
   protect,
-  authorize("citizen"),
+  authorize("citizen", "official"),
   getMyPetitions
 );
+router.get("/:id", protect, getPetitionById);
 
 router.delete(
   "/:id",
@@ -54,5 +57,7 @@ router.delete(
   authorize("citizen"),
   deletePetition
 );
+
+router.put("/:id", protect, updatePetition);
 
 module.exports = router;

@@ -1,10 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
+const { protect, authorize } = require("../middleware/authMiddleware");
 const { getStats, getOfficialStats } = require("../controllers/dashboardController");
-const { protect } = require("../middleware/authMiddleware");
 
 router.get("/", protect, getStats);
-router.get("/officials", protect, getOfficialStats);
+
+router.get(
+    "/official",
+    protect,
+    authorize("official"),
+    getOfficialStats
+);
 
 module.exports = router;

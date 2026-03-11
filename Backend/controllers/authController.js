@@ -1,17 +1,18 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
-
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../services/sendEmail");
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCK_TIME = 2 * 60 * 60 * 1000; // 2 hours
 
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { id: user._id, 
+    {
+      id: user._id,
       role: user.role,
-      location: user.location
+      location: user.location,
     },
     process.env.JWT_SECRET,
     { expiresIn: "15m" }
@@ -22,17 +23,28 @@ const generateRefreshToken = () => {
   return crypto.randomBytes(40).toString("hex");
 };
 
-
+// =============== REGISTER ===============
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, location, role, officialId } = req.body;
+    const email = req.body.email?.toLowerCase().trim();
+    const { name, password, location, role, officialId } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "Email already in use" });
     }
 
-    // If official role selected, require officialId
+    const strongPassword = 
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+\[\]{};:'",.<>/?]).{6,}$/;
+if (!strongPassword.test(password)) {
+  return res.status(400).json({
+    message:
+      "Password must be at least 6 characters and include uppercase, lowercase, number, and symbol.",
+  });
+}
+
+
+
     if (role === "official" && !officialId) {
       return res.status(400).json({ message: "Official ID required" });
     }
@@ -43,11 +55,14 @@ exports.register = async (req, res, next) => {
       password,
       location,
       role,
-      officialId: role === "official" ? officialId : undefined
+      officialId: role === "official" ? officialId : undefined,
     });
 
+    // Optional: send verification email immediately for all users
+    // or for officials only – you already have resendVerification.
+    // For now just respond success.
     res.status(201).json({
-      message: "User registered successfully."
+      message: "User registered successfully. Please verify your email.",
     });
 
   } catch (error) {
@@ -55,6 +70,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
+// =============== VERIFY EMAIL ===============
 exports.verifyEmail = async (req, res, next) => {
   try {
     const token = crypto
@@ -64,7 +80,7 @@ exports.verifyEmail = async (req, res, next) => {
 
     const user = await User.findOne({
       emailVerificationToken: token,
-      emailVerificationExpires: { $gt: Date.now() }
+      emailVerificationExpires: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -84,24 +100,54 @@ exports.verifyEmail = async (req, res, next) => {
   }
 };
 
+// =============== LOGIN ===============
 exports.login = async (req, res, next) => {
   try {
-    const { email, password, officialId } = req.body;
+    const email = req.body.email?.toLowerCase().trim();
+    const { password, officialId } = req.body;
 
     const user = await User.findOne({ email });
 
-    if (!user)
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    // if official, verify officeId
+    // Check lock
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      return res.status(423).json({
+        message: "Account locked. Try again in a few minutes.",
+      });
+    }
+
+    if (!user.emailVerified) {
+      return res.status(403).json({ message: "Email not verified" });
+    }
+
     if (user.role === "official") {
       if (!officialId || officialId !== user.officialId) {
+        // count failed attempt
+        user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+        if (user.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
+          user.lockUntil = Date.now() + LOCK_TIME;
+        }
+        await user.save();
         return res.status(401).json({ message: "Invalid credentials" });
       }
     }
+
     const isMatch = await user.matchPassword(password);
-    if (!isMatch)
+    if (!isMatch) {
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      if (user.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
+        user.lockUntil = Date.now() + LOCK_TIME;
+      }
+      await user.save();
       return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // success: reset counters
+    user.failedLoginAttempts = 0;
+    user.lockUntil = undefined;
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
@@ -114,12 +160,13 @@ exports.login = async (req, res, next) => {
     await user.save();
 
     res.json({ accessToken, refreshToken });
-
   } catch (error) {
     next(error);
   }
 };
 
+
+// =============== REFRESH TOKEN ===============
 exports.refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -139,7 +186,7 @@ exports.refresh = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
-    // Generate new tokens
+
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken();
 
@@ -152,7 +199,7 @@ exports.refresh = async (req, res, next) => {
 
     res.json({
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken
+      refreshToken: newRefreshToken,
     });
 
   } catch (error) {
@@ -160,6 +207,7 @@ exports.refresh = async (req, res, next) => {
   }
 };
 
+// =============== FORGOT PASSWORD ===============
 exports.forgotPassword = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -168,7 +216,7 @@ exports.forgotPassword = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Create reset token
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
     user.resetPasswordToken = crypto
@@ -202,6 +250,7 @@ exports.forgotPassword = async (req, res, next) => {
   }
 };
 
+// =============== RESET PASSWORD ===============
 exports.resetPassword = async (req, res, next) => {
   try {
     const hashedToken = crypto
@@ -231,19 +280,23 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
+// =============== LOGOUT ===============
 exports.logout = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
-    user.refreshToken = undefined;
-    await user.save();
+    if (user) {
+      user.refreshToken = undefined;
+      await user.save();
+    }
 
     res.json({ message: "Logged out successfully" });
   } catch (error) {
     next(error);
-  } 
+  }
 };
 
+// =============== RESEND VERIFICATION ===============
 exports.resendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -253,8 +306,11 @@ exports.resendVerification = async (req, res, next) => {
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    if (user.emailVerified)
-      return res.status(400).json({ message: "Email already verified" });
+    if (user.emailVerified) {
+      return res
+        .status(400)
+        .json({ message: "Email already verified" });
+    }
 
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
@@ -264,7 +320,7 @@ exports.resendVerification = async (req, res, next) => {
       .digest("hex");
 
     user.emailVerificationToken = hashedToken;
-    user.emailVerificationExpires = Date.now() + 60 * 60 * 1000;
+    user.emailVerificationExpires = Date.now() + 60 * 60 * 1000; // 1 hour
 
     await user.save();
 
@@ -277,11 +333,23 @@ exports.resendVerification = async (req, res, next) => {
         <h3>Email Verification</h3>
         <p>Click the link below to verify your email:</p>
         <a href="${verificationUrl}">${verificationUrl}</a>
-      `
+      `,
     });
 
     res.json({ message: "Verification email sent" });
 
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getMe = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password -refreshToken -resetPasswordToken -resetPasswordExpires -failedLoginAttempts -__v");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
   } catch (error) {
     next(error);
   }

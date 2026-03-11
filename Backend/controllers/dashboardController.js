@@ -1,43 +1,38 @@
 const Petition = require("../models/Petition");
 
+/* ================= USER DASHBOARD ================= */
+
 exports.getStats = async (req, res, next) => {
   try {
 
     const userId = req.user._id;
 
-    // ✅ My petitions
-    const totalPetitions = await Petition.countDocuments({
+    /* ---------- PETITION COUNTS ---------- */
+
+    const total = await Petition.countDocuments({
       createdBy: userId
     });
 
-    const myPetitions = await Petition.countDocuments({
-      createdBy: userId,
-    });
-
-    const successfulPetitions = await Petition.countDocuments({
-      createdBy: userId,
-      status: "closed",
-    });
-
-    const activePetitions = await Petition.countDocuments({
+    const active = await Petition.countDocuments({
       createdBy: userId,
       status: "active"
     });
 
-    const underReviewPetitions = await Petition.countDocuments({
+    const underReview = await Petition.countDocuments({
       createdBy: userId,
       status: "under_review"
     });
 
-    const closedPetitions = await Petition.countDocuments({
+    const closed = await Petition.countDocuments({
       createdBy: userId,
       status: "closed"
     });
 
-    // ✅ Total signatures gained
+    /* ---------- SIGNATURE COUNT ---------- */
+
     const petitions = await Petition.find({
       createdBy: userId
-    });
+    }).select("signatures");
 
     const totalSignatures = petitions.reduce(
       (sum, p) => sum + p.signatures.length,
@@ -45,20 +40,20 @@ exports.getStats = async (req, res, next) => {
     );
 
     res.json({
-      totalPetitions,
-      activePetitions,
-      underReviewPetitions,
-      closedPetitions,
-      totalSignatures,
-      myPetitions,
-      successfulPetitions,
-      pollsCreated: 0
+      total,
+      active,
+      underReview,
+      closed,
+      totalSignatures
     });
 
   } catch (error) {
     next(error);
   }
 };
+
+
+/* ================= OFFICIAL DASHBOARD ================= */
 
 exports.getOfficialStats = async (req, res, next) => {
   try {
@@ -71,7 +66,7 @@ exports.getOfficialStats = async (req, res, next) => {
 
     const location = req.user.location;
 
-    const totalPetitions = await Petition.countDocuments({
+    const total = await Petition.countDocuments({
       location
     });
 
@@ -80,7 +75,7 @@ exports.getOfficialStats = async (req, res, next) => {
       status: "under_review"
     });
 
-    const closedPetitions = await Petition.countDocuments({
+    const closed = await Petition.countDocuments({
       location,
       status: "closed"
     });
@@ -90,9 +85,9 @@ exports.getOfficialStats = async (req, res, next) => {
     });
 
     res.json({
-      totalPetitions,
+      total,
       underReview,
-      closedPetitions,
+      closed,
       responsesGiven
     });
 

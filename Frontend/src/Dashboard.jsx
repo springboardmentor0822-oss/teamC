@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import WelcomeCard from "./WelcomeCard";
@@ -7,15 +8,24 @@ import CardsSection from "./CardsSection";
 import PetitionList from "./PetitionList";
 import MyPetitions from "./MyPetitions";
 import OfficialStats from "./OfficialStats";
+import PollList from "./Pollss/PollList";
 
 import "./dashboard.css";
+import { useEffect } from "react";
 
 function Dashboard() {
   const [activePage, setActivePage] = useState("dashboard");
-
+  const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   const user = token ? JSON.parse(atob(token.split(".")[1])) : null;
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      navigate("/");
+    }
+  }, [navigate]);
+  
   return (
     <div className="dashboard-container">
       <Topbar />
@@ -48,7 +58,7 @@ function Dashboard() {
           )}
           {/* FUTURE MODULES */}
           {activePage === "polls" && (
-            <h2 className="coming-soon">📊 Polls Section (Coming Soon)</h2>
+            <PollList />
           )}
           {activePage === "Reports" && (
             <h2 className="coming-soon">📑 Reports Section (Coming Soon)</h2>

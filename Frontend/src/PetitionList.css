@@ -471,3 +471,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ================= EDIT BUTTON ================= */
+
+.edit-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #10b981, #22c55e);
+  color: #ffffff;
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.edit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.32);
+}
+
+/* spacing between sign + edit buttons */
+
+.signature-row button + button {
+  margin-left: 0.45rem;
+}

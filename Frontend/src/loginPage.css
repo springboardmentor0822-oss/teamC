@@ -459,3 +459,137 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.password-hints {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.password-hints-title {
+  margin: 0 0 2px 0;
+}
+
+.password-hints ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.password-hints li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.password-hints li::before {
+  content: "●";
+  font-size: 8px;
+  color: #9ca3af;
+}
+
+.password-hints li.ok {
+  color: #16a34a;
+}
+
+.password-hints li.ok::before {
+  content: "✔";
+  font-size: 10px;
+  color: #16a34a;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Floating, card-like helper */
+.password-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  z-index: 30;
+}
+
+.password-popover-title {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.password-popover ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.password-popover li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.password-popover li::before {
+  content: "●";
+  font-size: 8px;
+  color: #9ca3af;
+}
+
+.password-popover li.ok {
+  color: #16a34a;
+}
+
+.password-popover li.ok::before {
+  content: "✔";
+  font-size: 10px;
+  color: #16a34a;
+}
+
+.password-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-row input {
+  flex: 1;
+  padding-right: 42px; /* space for icon button */
+  /* height: 44px; */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-90%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 16px;
+  padding: 0;
+}
+
+.password-toggle:hover {
+  color: #4b5563;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
