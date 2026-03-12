@@ -62,7 +62,7 @@ function StatsSection() {
       </div>
 
       <div className="stat-card">
-        <h3>0</h3>
+        <h3>{stats.pollsCreated}</h3>
         <p>Polls Created</p>
       </div>
 

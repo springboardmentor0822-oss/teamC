@@ -1,4 +1,5 @@
 const Petition = require("../models/Petition");
+const Poll = require("../models/Poll");
 
 /* ================= USER DASHBOARD ================= */
 
@@ -28,8 +29,11 @@ exports.getStats = async (req, res, next) => {
       status: "closed"
     });
 
+    
+    const pollsCreated = await Poll.countDocuments({
+      createdBy: req.user._id, });
     /* ---------- SIGNATURE COUNT ---------- */
-
+    
     const petitions = await Petition.find({
       createdBy: userId
     }).select("signatures");
@@ -44,6 +48,7 @@ exports.getStats = async (req, res, next) => {
       active,
       underReview,
       closed,
+      pollsCreated,
       totalSignatures
     });
 

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import axios from "axios";
 import "./CreatePoll.css";
@@ -11,6 +10,8 @@ function CreatePoll() {
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [expiresAt, setExpiresAt] = useState("");
+  const [targetLocation, setTargetLocation] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
@@ -26,21 +27,38 @@ function CreatePoll() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const trimmedTitle = title.trim();
+    const trimmedOptions = options
+      .map((o) => o.trim())
+      .filter((o) => o.length > 0);
+
+    if (!trimmedTitle) {
+      alert("Poll question is required.");
+      return;
+    }
+
+    if (trimmedOptions.length < 2) {
+      alert("Please provide at least 2 options.");
+      return;
+    }
+
     try {
+      setSubmitting(true);
       const token = localStorage.getItem("accessToken");
 
       await axios.post(
         "http://localhost:5000/api/polls",
         {
-          title,
+          title: trimmedTitle,
           description,
-          options,
-          expiresAt
+          options: trimmedOptions,
+          expiresAt,
+          target_location: targetLocation.trim() || null,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -48,6 +66,8 @@ function CreatePoll() {
       navigate("/polls");
     } catch (error) {
       alert(error.response?.data?.message || "Error creating poll");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -77,6 +97,16 @@ function CreatePoll() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional context for voters..."
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Target Location (optional)</label>
+            <input
+              type="text"
+              value={targetLocation}
+              onChange={(e) => setTargetLocation(e.target.value)}
+              placeholder="e.g. San Diego, CA"
             />
           </div>
 
@@ -121,9 +151,7 @@ function CreatePoll() {
             >
               + Add Option
             </button>
-            <p className="field-hint">
-              You can add up to 6 options.
-            </p>
+            <p className="field-hint">You can add up to 6 options.</p>
           </div>
 
           <div className="form-actions">
@@ -131,11 +159,12 @@ function CreatePoll() {
               type="button"
               className="secondary-btn"
               onClick={() => navigate("/polls")}
+              disabled={submitting}
             >
               Cancel
             </button>
-            <button type="submit" className="submit-btn">
-              Create Poll
+            <button type="submit" className="submit-btn" disabled={submitting}>
+              {submitting ? "Creating…" : "Create Poll"}
             </button>
           </div>
         </form>
