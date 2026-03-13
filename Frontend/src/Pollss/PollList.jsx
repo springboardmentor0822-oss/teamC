@@ -142,45 +142,51 @@ function PollList() {
           <div>
             <h2>Community Polls</h2>
             <p className="header-subtitle">
-              Vote, explore trends, and create your own polls.
+              Vote on questions, discover insights, and share opinions with the community.
             </p>
           </div>
+          <div className="header-right">
+          
           <input
             type="text"
-            placeholder="Search polls by title"
+            placeholder="Search polls"
             className="search-bar"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-          />
+            />
         </div>
-        <button
-          className="create-poll-btn"
-          onClick={() => navigate("/create-poll")}
-        >
-          + New Poll
-        </button>
+          <button
+            className="create-poll-btn"
+            onClick={() => navigate("/create-poll")}
+            >
+            + Create Poll
+          </button>
+        </div>
       </div>
 
       <div className="poll-tabs">
-        <button
-          className={`tab ${activeTab === "explore" ? "active" : ""}`}
-          onClick={() => setActiveTab("explore")}
-        >
-          All polls
-        </button>
-        <button
-          className={`tab ${activeTab === "trending" ? "active" : ""}`}
-          onClick={() => setActiveTab("trending")}
-        >
-          🔥 Trending
-        </button>
-        <button
-          className={`tab ${activeTab === "my-polls" ? "active" : ""}`}
-          onClick={() => setActiveTab("my-polls")}
-        >
-          My polls
-        </button>
-      </div>
+  <div className="tab-group">
+    <button
+      className={`tab ${activeTab === "explore" ? "active" : ""}`}
+      onClick={() => setActiveTab("explore")}
+    >
+      All
+    </button>
+    <button
+      className={`tab ${activeTab === "trending" ? "active" : ""}`}
+      onClick={() => setActiveTab("trending")}
+    >
+      🔥 Trending
+    </button>
+    <button
+      className={`tab ${activeTab === "my-polls" ? "active" : ""}`}
+      onClick={() => setActiveTab("my-polls")}
+    >
+      My polls
+    </button>
+  </div>
+</div>
+
 
       {/* Small “results dashboard” summary */}
       <div className="poll-summary">
@@ -213,8 +219,8 @@ function PollList() {
         {!loading && !error && filteredPolls.length === 0 && (
           <div className="state-msg">
             {searchTerm
-              ? "No polls found for this search."
-              : "No polls yet. Be the first to create one!"}
+              ? "No polls match your search."
+              : "No polls yet. Start by creating your first poll."}
           </div>
         )}
 
@@ -262,14 +268,19 @@ function PollList() {
                       >
                         {!isExpired ? "Live" : "Closed"}
                       </span>
+                      <span className="meta-dot">.</span>
                       <span className="vote-count">
                         {totalVotesForPoll} votes
                       </span>
+                      <span className="meta-dot">.</span>
                       <span className="vote-count">{closesText}</span>
                       {poll.target_location && (
+                        <>
+                        <span className="meta-dot">.</span>
                         <span className="vote-count">
                           📍 {poll.target_location}
                         </span>
+                        </>
                       )}
                     </div>
                   </div>
@@ -285,7 +296,7 @@ function PollList() {
                       }))
                     }
                   >
-                    {expandedCharts[poll._id] ? "Hide stats" : "📊 Stats"}
+                    {expandedCharts[poll._id] ? "Hide stats" : "View Stats"}
                   </button>
                 </div>
 

@@ -63,7 +63,10 @@ function CreatePoll() {
       );
 
       alert("Poll created successfully");
-      navigate("/polls");
+
+      // ✅ Navigate to dashboard polls
+      navigate("/dashboard", { state: { page: "polls" } });
+
     } catch (error) {
       alert(error.response?.data?.message || "Error creating poll");
     } finally {
@@ -126,6 +129,7 @@ function CreatePoll() {
 
           <div className="form-group">
             <label>Options</label>
+
             <div className="options-list">
               {options.map((option, index) => (
                 <div key={index} className="option-row">
@@ -151,6 +155,7 @@ function CreatePoll() {
             >
               + Add Option
             </button>
+
             <p className="field-hint">You can add up to 6 options.</p>
           </div>
 
@@ -158,12 +163,19 @@ function CreatePoll() {
             <button
               type="button"
               className="secondary-btn"
-              onClick={() => navigate("/polls")}
+              onClick={() =>
+                navigate("/dashboard", { state: { page: "polls" } })
+              }
               disabled={submitting}
             >
               Cancel
             </button>
-            <button type="submit" className="submit-btn" disabled={submitting}>
+
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={submitting}
+            >
               {submitting ? "Creating…" : "Create Poll"}
             </button>
           </div>

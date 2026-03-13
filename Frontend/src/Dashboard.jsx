@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import WelcomeCard from "./WelcomeCard";
@@ -11,11 +12,16 @@ import OfficialStats from "./OfficialStats";
 import PollList from "./Pollss/PollList";
 
 import "./dashboard.css";
-import { useEffect } from "react";
 
 function Dashboard() {
-  const [activePage, setActivePage] = useState("dashboard");
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activePage, setActivePage] = useState(
+    location.state?.page || "dashboard"
+  );
+
   const token = localStorage.getItem("accessToken");
   const user = token ? JSON.parse(atob(token.split(".")[1])) : null;
 
@@ -25,19 +31,23 @@ function Dashboard() {
       navigate("/");
     }
   }, [navigate]);
-  
+
   return (
     <div className="dashboard-container">
+
       <Topbar />
+
       <div className="dashboard-body">
+
         {/* SIDEBAR */}
         <Sidebar
           activePage={activePage}
           setActivePage={setActivePage}
         />
+
         {/* MAIN CONTENT */}
         <div className="dashboard-main">
-          {/* HOME */}
+
           {activePage === "dashboard" && (
             <>
               <WelcomeCard />
@@ -48,26 +58,31 @@ function Dashboard() {
               <CardsSection />
             </>
           )}
-          {/* BROWSE PETITIONS */}
+
           {activePage === "petitions" && (
             <PetitionList />
           )}
-          {/* MY PETITIONS */}
+
           {activePage === "myPetitions" && (
             <MyPetitions />
           )}
-          {/* FUTURE MODULES */}
+
           {activePage === "polls" && (
             <PollList />
           )}
+
           {activePage === "Reports" && (
             <h2 className="coming-soon">📑 Reports Section (Coming Soon)</h2>
           )}
+
           {activePage === "Settings" && (
             <h2 className="coming-soon">⚙ Settings (Coming Soon)</h2>
           )}
+
         </div>
+
       </div>
+
     </div>
   );
 }
