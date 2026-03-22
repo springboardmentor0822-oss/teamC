@@ -11,6 +11,7 @@ const {
   deletePetition,
   updatePetition,
   getPetitionById,
+  exportPetitionsCSV,
 } = require("../controllers/petitionController");
 
 const { protect, authorize } = require("../middleware/authMiddleware");
@@ -59,5 +60,7 @@ router.delete(
 );
 
 router.put("/:id", protect, updatePetition);
+
+router.post("/:id/respond", protect, respondToPetition);
 
 module.exports = router;

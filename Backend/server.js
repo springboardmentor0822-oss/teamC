@@ -21,6 +21,8 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const userRoutes = require("./routes/userRoutes");
 const pollRoutes = require("./routes/pollRoutes");
+const reportRoutes = require("./routes/reportsRoutes");
+
 
 // ================= ENV =================
 
@@ -118,6 +120,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/polls", pollRoutes);
+app.use("/api/reports", reportRoutes);
 
 // ================= HEALTH CHECK =================
 

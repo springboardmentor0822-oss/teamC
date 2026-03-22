@@ -7,52 +7,64 @@ const petitionSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     category: {
       type: String,
       required: true,
       enum: ["Infrastructure", "Health", "Education", "Environment", "Other"],
     },
+
     description: {
       type: String,
       required: true,
     },
+
     signatureGoal: {
       type: Number,
-      required: true,
       default: 100,
     },
+
     location: {
       type: String,
       required: true,
     },
+
     status: {
       type: String,
       enum: ["active", "under_review", "approved", "rejected", "closed"],
       default: "active",
     },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
     signatures: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
-    signaturescount: {
-      type: Number,
-      default: 0
-    },
+
     responses: [
       {
         official: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
         },
-        message: String,
-        statusUpdate: String,
+
+        message: {
+          type: String,
+          required: true,
+        },
+
+        statusUpdate: {
+          type: String,
+          enum: ["under_review", "approved", "rejected", "closed"],
+        },
+
         respondedAt: {
           type: Date,
           default: Date.now,

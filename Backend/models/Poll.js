@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const pollSchema = new mongoose.Schema({
+
   title: {
     type: String,
     required: true
@@ -14,7 +15,13 @@ const pollSchema = new mongoose.Schema({
       votes: {
         type: Number,
         default: 0
-      }
+      },
+      voters: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User"
+        }
+      ]
     }
   ],
 
