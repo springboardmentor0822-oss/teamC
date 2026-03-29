@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect, useMemo } from "react";
-import axios from "axios";
+import { useState, useRef, useEffect } from "react";
+// import axios from "axios";
+import api from "./api";
 import {
   FaUserCircle,
   FaBell,
@@ -30,14 +31,20 @@ function Topbar() {
 
   /* ================= USER FROM JWT ================= */
 
-  const user = useMemo(() => {
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+  const loadUser = async () => {
     try {
-      if (!token) return {};
-      return JSON.parse(atob(token.split(".")[1]));
-    } catch {
-      return {};
+      const res = await api.get("/api/auth/me");
+      setUser(res.data);
+    } catch (err) {
+      console.error("User fetch failed", err);
     }
-  }, [token]);
+  };
+
+  loadUser();
+}, []);
 
   /* ================= REALTIME SOCKET ================= */
 
@@ -63,18 +70,11 @@ function Topbar() {
 
     if (!token) return;
 
-    const headers = {
-      Authorization: `Bearer ${token}`
-    };
-
     const fetchNotifications = async () => {
 
       try {
 
-        const res = await axios.get(
-          "http://localhost:5000/api/notifications",
-          { headers }
-        );
+        const res = await api.get("/api/notifications");
 
         setNotifications(res.data);
 
@@ -87,10 +87,7 @@ function Topbar() {
 
       try {
 
-        const res = await axios.get(
-          "http://localhost:5000/api/notifications/unread-count",
-          { headers }
-        );
+        const res = await api.get("/api/notifications/unread-count");
 
         setUnreadCount(res.data.count);
 
@@ -144,15 +141,7 @@ function Topbar() {
 
     try {
 
-      await axios.put(
-        `http://localhost:5000/api/notifications/${id}/read`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      await api.put(`/api/notifications/${id}/read`);
 
       setNotifications(prev =>
         prev.map(n =>
@@ -263,7 +252,15 @@ function Topbar() {
               }
             >
 
-              <FaUserCircle size={35} />
+              <img
+                src={
+                  user.avatar
+                    ? `http://localhost:5000${user.avatar}`
+                    : `https://ui-avatars.com/api/?name=${user.name || "User"}`
+                }
+                alt="profile"
+                className="topbar-avatar"
+              />
 
             </div>
 

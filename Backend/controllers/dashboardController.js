@@ -8,8 +8,6 @@ exports.getStats = async (req, res, next) => {
 
     const userId = req.user._id;
 
-    /* ---------- PETITION COUNTS ---------- */
-
     const total = await Petition.countDocuments({
       createdBy: userId
     });
@@ -29,17 +27,16 @@ exports.getStats = async (req, res, next) => {
       status: "closed"
     });
 
-    
     const pollsCreated = await Poll.countDocuments({
-      createdBy: req.user._id, });
-    /* ---------- SIGNATURE COUNT ---------- */
-    
+      createdBy: userId
+    });
+
     const petitions = await Petition.find({
       createdBy: userId
     }).select("signatures");
 
     const totalSignatures = petitions.reduce(
-      (sum, p) => sum + p.signatures.length,
+      (sum, p) => sum + (p.signatures?.length || 0),
       0
     );
 
@@ -85,8 +82,13 @@ exports.getOfficialStats = async (req, res, next) => {
       status: "closed"
     });
 
+    // ✅ FIXED RESPONSE COUNT
     const responsesGiven = await Petition.countDocuments({
-      "responses.official": req.user._id
+      responses: {
+        $elemMatch: {
+          official: req.user._id
+        }
+      }
     });
 
     res.json({

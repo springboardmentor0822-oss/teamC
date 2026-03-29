@@ -15,7 +15,7 @@ const generateAccessToken = (user) => {
       location: user.location,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "2h" }
   );
 };
 

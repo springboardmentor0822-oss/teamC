@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { getGlobalReports } = require("../controllers/reportController");
-const { protect } = require("../middleware/authMiddleware");
+const { getReports } = require("../controllers/reportController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/global", protect, getGlobalReports);
+router.get("/", getReports);
 
 module.exports = router;

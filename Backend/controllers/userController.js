@@ -87,13 +87,13 @@ exports.uploadAvatar = async (req, res) => {
 
     const user = await User.findById(req.user.id);
 
-    user.avatar = req.file.filename;
+    user.avatar = `/uploads/${req.file.filename}`;
 
     await user.save();
 
     res.json({
       message: "Avatar uploaded",
-      avatar: user.avatar
+      avatar: `/uploads/${req.file.filename}`
     });
 
   } catch (error) {

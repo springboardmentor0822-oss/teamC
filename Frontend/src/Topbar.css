@@ -82,16 +82,26 @@
 /* Notification Dropdown */
 .notification-dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: 45px;
   right: 0;
-  width: 380px;
-  max-height: 500px;
+  width: 300px;
+
+  max-height: 300px;   /* 🔥 LIMIT HEIGHT */
+  overflow-y: auto;    /* 🔥 ENABLE SCROLL */
+
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  z-index: 1001;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+  padding: 10px;
+}
+
+.notification-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
 }
 
 .notification-header {
@@ -487,6 +497,13 @@
   background: #dc2626;
 }
 
+.topbar-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
 
 /* Animation */
 

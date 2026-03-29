@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
+import "./OfficialPetitions.css";
 
 function OfficialPetitions() {
 
@@ -8,20 +9,12 @@ function OfficialPetitions() {
   useEffect(() => {
 
     const fetchPetitions = async () => {
-
-      const token = localStorage.getItem("accessToken");
-
-      const res = await axios.get(
-        "http://localhost:5000/api/petitions?myLocation=true",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      setPetitions(res.data);
-
+      try {
+        const res = await api.get("/api/petitions?myLocation=true");
+        setPetitions(res.data);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     fetchPetitions();
@@ -29,26 +22,34 @@ function OfficialPetitions() {
   }, []);
 
   return (
-
-    <div>
+    <div className="official-petitions">
 
       <h2>Petitions For Review</h2>
 
-      {petitions.map(petition => (
+      <div className="petition-grid">
 
-        <div key={petition._id} className="petition-card">
+        {petitions.map(p => (
+          <div key={p._id} className="petition-card">
 
-          <h3>{petition.title}</h3>
-          <p>{petition.description}</p>
+            <h3>{p.title}</h3>
+            <p>{p.description}</p>
 
-          <p>Status: {petition.status}</p>
+            <div className="petition-footer">
+              <span className={`status ${p.status}`}>
+                {p.status}
+              </span>
 
-        </div>
+              <span>
+                {p.signatures?.length || 0} signatures
+              </span>
+            </div>
 
-      ))}
+          </div>
+        ))}
+
+      </div>
 
     </div>
-
   );
 }
 

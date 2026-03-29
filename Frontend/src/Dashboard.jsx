@@ -38,23 +38,28 @@ function Dashboard() {
         {/* SIDEBAR */}
         <Sidebar />
 
-        {/* MAIN CONTENT */}
-        <div className="dashboard-main">
+        {/* RIGHT SIDE */}
+        <div className="dashboard-right">
 
-          {/* ✅ Dashboard Home */}
-          {isHome && (
-            <>
-              <WelcomeCard />
-              {user?.role === "official"
-                ? <OfficialStats />
-                : <StatsSection />
-              }
-              <CardsSection />
-            </>
-          )}
+          {/* MAIN CONTENT */}
+          <div className="dashboard-main">
 
-          {/* ✅ Routed Pages (Polls, Petitions, etc.) */}
-          <Outlet />
+            {/* Dashboard Home */}
+            {isHome && (
+              <>
+                <WelcomeCard />
+                {user?.role === "official"
+                  ? <OfficialStats />
+                  : <StatsSection />
+                }
+                <CardsSection />
+              </>
+            )}
+
+            {/* Routed Pages */}
+            <Outlet />
+
+          </div>
 
         </div>
 

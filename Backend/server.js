@@ -21,8 +21,8 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const userRoutes = require("./routes/userRoutes");
 const pollRoutes = require("./routes/pollRoutes");
-const reportRoutes = require("./routes/reportsRoutes");
-
+const reportsRoutes = require("./routes/reportsRoutes");
+const path = require("path");
 
 // ================= ENV =================
 
@@ -96,7 +96,10 @@ io.on("connection", (socket) => {
 
 app.use(cors());
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false
+  }));
 
 // ================= DATABASE =================
 
@@ -118,9 +121,9 @@ app.use("/api/officials", officialRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
-app.use("/uploads", express.static("uploads"));
 app.use("/api/polls", pollRoutes);
-app.use("/api/reports", reportRoutes);
+app.use("/api/reports", reportsRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ================= HEALTH CHECK =================
 

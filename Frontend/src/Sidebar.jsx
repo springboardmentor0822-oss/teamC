@@ -1,64 +1,76 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 function Sidebar() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const [open, setOpen] = useState(true);
 
   const isActive = (path) => location.pathname === path;
 
+  const goTo = (path) => {
+    navigate(path);
+    setOpen(false); // ✅ automatically close sidebar
+  };
+
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${open ? "open" : "closed"}`}>
+
+      {/* HAMBURGER */}
+      <div className="hamburger" onClick={() => setOpen(!open)}>
+        ☰
+      </div>
 
       <ul>
 
         <li
           className={isActive("/dashboard") ? "active" : ""}
-          onClick={() => navigate("/dashboard")}
+          onClick={() => goTo("/dashboard")}
         >
-          Dashboard
+          {open && "Dashboard"}
         </li>
 
         <li
           className={isActive("/dashboard/petitions") ? "active" : ""}
-          onClick={() => navigate("/dashboard/petitions")}
+          onClick={() => goTo("/dashboard/petitions")}
         >
-          Petitions
+          {open && "Petitions"}
         </li>
 
         <li
           className={isActive("/dashboard/mypetitions") ? "active" : ""}
-          onClick={() => navigate("/dashboard/mypetitions")}
+          onClick={() => goTo("/dashboard/mypetitions")}
         >
-          My Petitions
+          {open && "My Petitions"}
         </li>
 
         <li
           className={isActive("/dashboard/polls") ? "active" : ""}
-          onClick={() => navigate("/dashboard/polls")}
+          onClick={() => goTo("/dashboard/polls")}
         >
-          Polls
+          {open && "Polls"}
         </li>
 
         <li
           className={isActive("/dashboard/officials") ? "active" : ""}
-          onClick={() => navigate("/dashboard/officials")}
+          onClick={() => goTo("/dashboard/officials")}
         >
-          Officials
+          {open && "Officials"}
         </li>
 
         <li
           className={isActive("/dashboard/reports") ? "active" : ""}
-          onClick={() => navigate("/dashboard/reports")}
+          onClick={() => goTo("/dashboard/reports")}
         >
-          Reports
+          {open && "Reports"}
         </li>
 
         <li
           className={isActive("/dashboard/settings") ? "active" : ""}
-          onClick={() => navigate("/dashboard/settings")}
+          onClick={() => goTo("/dashboard/settings")}
         >
-          Settings
+          {open && "Settings"}
         </li>
 
       </ul>

@@ -7,18 +7,28 @@
   background: #f3f4f6;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .dashboard-body {
   display: flex;
   flex: 1;
+  width: 100%;
 }
-
+.dashboard-right{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
 .dashboard-main {
   flex: 1;
   padding: 30px 40px;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   min-height: 100vh;
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
 }
 
 /* ===================== */
@@ -32,7 +42,29 @@
   padding: 25px 18px;
   border-radius: 0 18px 18px 0;
   box-shadow: 4px 0 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease; /* ✅ added */
 }
+
+/* ✅ NEW STATES */
+
+.sidebar.open {
+  width: 230px;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+/* ✅ HAMBURGER */
+
+.hamburger {
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* EXISTING */
 
 .sidebar ul {
   list-style: none;
@@ -46,6 +78,8 @@
   border-radius: 8px;
   opacity: 0.9;
   transition: all 0.25s ease;
+  white-space: nowrap;     /* ✅ added */
+  overflow: hidden;        /* ✅ added */
 }
 
 .sidebar li:hover {
@@ -58,6 +92,13 @@
   font-weight: 700;
   padding-left: 16px;
   border-left: 4px solid white;
+}
+
+/* ✅ WHEN CLOSED (center items) */
+
+.sidebar.closed li {
+  text-align: center;
+  padding-left: 0;
 }
 
 /* ===================== */

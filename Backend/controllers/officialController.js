@@ -24,3 +24,31 @@ exports.getOfficialPetitions = async (req, res, next) => {
     next(error);
   }
 };
+
+const User = require("../models/User");
+
+exports.getOfficialsList = async (req, res) => {
+  try {
+    const { location, search } = req.query;
+
+    let filter = { role: "official" };
+
+    // optional location filter
+    if (location) {
+      filter.location = location;
+    }
+
+    // optional search
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    const officials = await User.find(filter).select(
+      "name location department profileImage"
+    );
+
+    res.json(officials);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching officials" });
+  }
+};

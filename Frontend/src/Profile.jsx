@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import "./profile.css";
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from "react-icons/fa";
+import api from "./api";
 
 function Profile() {
-  const token = localStorage.getItem("accessToken");
+  
 
   const [user, setUser] = useState({});
-  const [profileImage, setProfileImage] = useState(null);
-
+  
+  const [preview, setPreview] = useState(null);
   const [analytics, setAnalytics] = useState({
     total: 0,
     active: 0,
@@ -18,50 +19,33 @@ function Profile() {
   });
 
   const [activities, setActivities] = useState([]);
-
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
   const [loadingActivity, setLoadingActivity] = useState(true);
   const navigate = useNavigate();
 
+  
   /* ================= LOAD USER ================= */
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+  const loadUser = async () => {
+    try {
+      const res = await api.get("/api/auth/me");
+      setUser(res.data);
+    } catch (err) {
+      console.error("User fetch failed", err);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
 
-        setUser(res.data);
-
-        if (res.data.avatar) {
-          setProfileImage(
-            `http://localhost:5000/uploads/${res.data.avatar}`
-          );
-        }
-      } catch (err) {
-        console.error("User fetch failed", err);
-      } finally {
-        setLoadingUser(false);
-      }
-    };
-
-    if (token) loadUser();
-  }, [token]);
-
+  loadUser();
+}, []);
   /* ================= LOAD ANALYTICS ================= */
   useEffect(() => {
     const loadAnalytics = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/dashboard", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        setAnalytics(res.data);
+        const res = await api.get("/api/dashboard");
+setAnalytics(res.data);
       } catch (err) {
         console.error("Analytics fetch failed", err);
       } finally {
@@ -69,23 +53,15 @@ function Profile() {
       }
     };
 
-    if (token) loadAnalytics();
-  }, [token]);
+     loadAnalytics();
+  }, []);
 
   /* ================= LOAD ACTIVITY ================= */
   useEffect(() => {
     const loadActivity = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/users/activity",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-
-        setActivities(res.data);
+        const res = await api.get("/api/users/activity");
+setActivities(res.data);
       } catch (err) {
         console.error("Activity fetch failed", err);
       } finally {
@@ -93,35 +69,49 @@ function Profile() {
       }
     };
 
-    if (token) loadActivity();
-  }, [token]);
+     loadActivity();
+  }, []);
 
   /* ================= AVATAR UPLOAD ================= */
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const formData = new FormData();
-    formData.append("avatar", file);
+  // ✅ VALIDATION
+  if (!file.type.startsWith("image/")) {
+    alert("Only image files allowed");
+    return;
+  }
 
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/users/avatar",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
-        }
-      );
+  if (file.size > 10 * 1024 * 1024) {
+    alert("Image must be less than 2MB");
+    return;
+  }
 
-      const avatarUrl = `http://localhost:5000/uploads/${res.data.avatar}`;
-      setProfileImage(avatarUrl);
-    } catch (err) {
-      console.error("Upload failed", err);
-    }
-  };
+  // ✅ PREVIEW
+  const previewUrl = URL.createObjectURL(file);
+  setPreview(previewUrl);
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  try {
+   await api.post("/api/users/avatar", formData, {
+  headers: {
+    "Content-Type": "multipart/form-data"
+  }
+});
+
+    const updatedUser = await api.get("/api/auth/me");
+setUser(updatedUser.data);
+setPreview(null);
+
+  } catch (err) {
+    console.error("Upload failed", err);
+    alert("Upload failed");
+    setPreview(null);
+  }
+};
 
   const roleIsOfficial = user.role === "official";
 
@@ -156,11 +146,15 @@ function Profile() {
               aria-label="Change profile photo"
             >
               <img
+              key={user.avatar}
                 src={
-                  profileImage ||
-                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  preview
+                    ? preview
+                    : user.avatar
+                    ? `http://localhost:5000${user.avatar}`
+                    : `https://ui-avatars.com/api/?name=${user.name || "User"}`
                 }
-                alt={user.name ? `${user.name} avatar` : "Profile"}
+                alt="Profile"
                 className="profile-avatar"
               />
               <div className="avatar-overlay">
