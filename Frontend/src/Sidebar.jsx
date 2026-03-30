@@ -1,5 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import {
+  FaHome,
+  FaFileAlt,
+  FaClipboardList,
+  FaPoll,
+  FaUserTie,
+  FaChartBar,
+  FaCog
+} from "react-icons/fa";
 
 function Sidebar() {
 
@@ -11,7 +20,7 @@ function Sidebar() {
 
   const goTo = (path) => {
     navigate(path);
-    setOpen(false); // ✅ automatically close sidebar
+    setOpen(false);
   };
 
   return (
@@ -28,49 +37,56 @@ function Sidebar() {
           className={isActive("/dashboard") ? "active" : ""}
           onClick={() => goTo("/dashboard")}
         >
-          {open && "Dashboard"}
+          <FaHome className="icon" />
+          {open && <span>Dashboard</span>}
         </li>
 
         <li
           className={isActive("/dashboard/petitions") ? "active" : ""}
           onClick={() => goTo("/dashboard/petitions")}
         >
-          {open && "Petitions"}
+          <FaFileAlt className="icon" />
+          {open && <span>Petitions</span>}
         </li>
 
         <li
           className={isActive("/dashboard/mypetitions") ? "active" : ""}
           onClick={() => goTo("/dashboard/mypetitions")}
         >
-          {open && "My Petitions"}
+          <FaClipboardList className="icon" />
+          {open && <span>My Petitions</span>}
         </li>
 
         <li
           className={isActive("/dashboard/polls") ? "active" : ""}
           onClick={() => goTo("/dashboard/polls")}
         >
-          {open && "Polls"}
+          <FaPoll className="icon" />
+          {open && <span>Polls</span>}
         </li>
 
         <li
           className={isActive("/dashboard/officials") ? "active" : ""}
           onClick={() => goTo("/dashboard/officials")}
         >
-          {open && "Officials"}
+          <FaUserTie className="icon" />
+          {open && <span>Officials</span>}
         </li>
 
         <li
           className={isActive("/dashboard/reports") ? "active" : ""}
           onClick={() => goTo("/dashboard/reports")}
         >
-          {open && "Reports"}
+          <FaChartBar className="icon" />
+          {open && <span>Reports</span>}
         </li>
 
         <li
           className={isActive("/dashboard/settings") ? "active" : ""}
           onClick={() => goTo("/dashboard/settings")}
         >
-          {open && "Settings"}
+          <FaCog className="icon" />
+          {open && <span>Settings</span>}
         </li>
 
       </ul>

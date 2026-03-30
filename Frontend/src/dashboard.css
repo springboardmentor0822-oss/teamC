@@ -94,6 +94,70 @@
   border-left: 4px solid white;
 }
 
+.sidebar {
+  width: 220px;
+  background: linear-gradient(180deg, #2563eb, #1e40af);
+  color: white;
+  height: 100vh;
+  padding-top: 20px;
+  transition: 0.3s;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+/* HAMBURGER */
+
+.hamburger {
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 10px 20px;
+}
+
+/* LIST */
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.sidebar li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* ICON */
+
+.icon {
+  font-size: 1.1rem;
+}
+
+/* ACTIVE */
+
+.sidebar li.active {
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+}
+
+/* HOVER */
+
+.sidebar li:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* TEXT */
+
+.sidebar li span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 /* ✅ WHEN CLOSED (center items) */
 
 .sidebar.closed li {
