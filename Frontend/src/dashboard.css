@@ -37,15 +37,15 @@
 
 .sidebar {
   width: 230px;
-  background: linear-gradient(180deg,#2563eb,#1e40af);
+  height: 100vh;
+  background: linear-gradient(180deg, #2563eb, #1e40af);
   color: white;
   padding: 25px 18px;
   border-radius: 0 18px 18px 0;
   box-shadow: 4px 0 15px rgba(0,0,0,0.08);
-  transition: all 0.3s ease; /* ✅ added */
+  transition: width 0.3s ease;
+  overflow: hidden;
 }
-
-/* ✅ NEW STATES */
 
 .sidebar.open {
   width: 230px;
@@ -55,67 +55,13 @@
   width: 70px;
 }
 
-/* ✅ HAMBURGER */
-
 .hamburger {
   font-size: 1.5rem;
   cursor: pointer;
   margin-bottom: 20px;
   color: white;
+  padding: 5px 10px;
 }
-
-/* EXISTING */
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  margin-bottom: 18px;
-  cursor: pointer;
-  padding: 10px 12px;
-  border-radius: 8px;
-  opacity: 0.9;
-  transition: all 0.25s ease;
-  white-space: nowrap;     /* ✅ added */
-  overflow: hidden;        /* ✅ added */
-}
-
-.sidebar li:hover {
-  background: rgba(255,255,255,0.12);
-  padding-left: 16px;
-}
-
-.sidebar li.active {
-  background: rgba(255,255,255,0.25);
-  font-weight: 700;
-  padding-left: 16px;
-  border-left: 4px solid white;
-}
-
-.sidebar {
-  width: 220px;
-  background: linear-gradient(180deg, #2563eb, #1e40af);
-  color: white;
-  height: 100vh;
-  padding-top: 20px;
-  transition: 0.3s;
-}
-
-.sidebar.closed {
-  width: 70px;
-}
-
-/* HAMBURGER */
-
-.hamburger {
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 10px 20px;
-}
-
-/* LIST */
 
 .sidebar ul {
   list-style: none;
@@ -126,29 +72,21 @@
 .sidebar li {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 12px 20px;
+  gap: 14px;
+  margin-bottom: 14px;
   cursor: pointer;
-  transition: 0.2s;
+  padding: 10px 12px;
+  border-radius: 8px;
+  opacity: 0.9;
+  transition: background 0.25s ease, opacity 0.2s ease;
+  white-space: nowrap;
 }
 
 /* ICON */
 
 .icon {
   font-size: 1.1rem;
-}
-
-/* ACTIVE */
-
-.sidebar li.active {
-  background: rgba(255,255,255,0.2);
-  border-radius: 8px;
-}
-
-/* HOVER */
-
-.sidebar li:hover {
-  background: rgba(255,255,255,0.1);
+  min-width: 20px;
 }
 
 /* TEXT */
@@ -156,15 +94,36 @@
 .sidebar li span {
   font-size: 0.9rem;
   font-weight: 500;
+  transition: opacity 0.2s ease;
 }
 
-/* ✅ WHEN CLOSED (center items) */
+.sidebar li:hover {
+  background: rgba(255,255,255,0.12);
+  opacity: 1;
+}
+
+.sidebar li.active {
+  background: rgba(255,255,255,0.25);
+  font-weight: 700;
+  border-left: 4px solid white;
+}
 
 .sidebar.closed li {
-  text-align: center;
-  padding-left: 0;
+  justify-content: center;
+  padding: 12px 0;
 }
 
+/* hide text when closed */
+
+.sidebar.closed li span {
+  display: none;
+}
+
+/* center icon */
+
+.sidebar.closed .icon {
+  margin: 0 auto;
+}
 /* ===================== */
 /* WELCOME CARD          */
 /* ===================== */
