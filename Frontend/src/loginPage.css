@@ -32,10 +32,11 @@ body {
   justify-content: center;
 }
 
-.logo-text {
+.left-panel .logo-text {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 40px;
+  
 }
 
 .left-panel .title {
@@ -44,8 +45,10 @@ body {
   margin-bottom: 15px;
 }
 
-.left-panel .subtitle {
-  font-size: 16px;
+/* Subtitle */
+.subtitle {
+  font-size: 14px;
+  line-height: 1.6;
   opacity: 0.9;
   margin-bottom: 40px;
   max-width: 420px;

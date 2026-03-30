@@ -71,7 +71,7 @@ function Officials() {
           <label>Search</label>
           <input
             type="text"
-            placeholder="Search by name or location..."
+            placeholder="Search by name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

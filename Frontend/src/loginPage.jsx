@@ -206,10 +206,8 @@ if (!isLogin && !validatePassword(formData.password)) {
   return (
     <div className="login-container">
       <div className="left-panel">
-        <div className="logo">
-          <span className="logo-text">🏛 Civix</span>
-        </div>
-
+        
+        <h1 className="logo-text">🏛️ Civix</h1>
         <h1 className="title">Digital Civic Engagement Platform</h1>
         <p className="subtitle">Empowering civic voices</p>
 
