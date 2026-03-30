@@ -82,8 +82,8 @@ function Sidebar() {
         </li>
 
         <li
-          className={isActive("/dashboard/settings") ? "active" : ""}
-          onClick={() => goTo("/dashboard/settings")}
+          className={isActive("/dashboard/Settings") ? "active" : ""}
+          onClick={() => goTo("/dashboard/Settings")}
         >
           <FaCog className="icon" />
           {open && <span>Settings</span>}

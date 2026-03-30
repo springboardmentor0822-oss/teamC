@@ -16,6 +16,7 @@ import PollList from "./Pollss/PollList";
 import MyPetitions from "./MyPetitions";
 import Reports from "./Pages/Reports";
 import Officials from "./Pages/Officials";
+import Settings from "./Pages/Settings";
 
 function App() {
   return (
@@ -37,7 +38,10 @@ function App() {
 
           {/* ✅ FIXED: moved inside */}
           <Route path="reports" element={<Reports />} />
+
           <Route path="officials" element={<Officials />} />
+
+          <Route path="Settings" element={<Settings />} />
 
         </Route>
 
