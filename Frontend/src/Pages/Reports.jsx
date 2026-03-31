@@ -165,40 +165,190 @@ function Reports() {
       }
     ]
   };
+const handleExportCSV = () => {
 
-  const handleExportCSV = () => {
-    const rows = [
-      ["Category", "Value"],
-      ["Total Petitions", totals.totalPetitions],
-      ["Total Polls", totals.totalPolls],
-      ["Total Votes", totals.totalVotes],
-      ["Total Signatures", totals.totalSignatures]
-    ];
+  const rows = [
+    ["CIVIX REPORT"],
+    [],
+    ["Generated On", new Date().toLocaleString()],
+    ["Date Range", days === "all" ? "All Time" : `Last ${days} Days`],
+    ["Location Filter", location || "Global"],
+    [],
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      rows.map((e) => e.join(",")).join("\n");
+    ["SUMMARY METRICS"],
+    ["Metric", "Value"],
+    ["Total Petitions", totals.totalPetitions],
+    ["Total Polls", totals.totalPolls],
+    ["Total Votes", totals.totalVotes],
+    ["Total Signatures", totals.totalSignatures],
+    ["Petition Closure Rate", `${closureRate}%`],
+    [],
 
-    const link = document.createElement("a");
-    link.href = encodeURI(csvContent);
-    link.download = "reports.csv";
-    link.click();
-  };
+    ["PETITION STATUS"],
+    ["Status", "Count"],
+    ["Active", petitionStatus.active],
+    ["Under Review", petitionStatus.underReview],
+    ["Closed", petitionStatus.closed],
+    [],
+
+    ["POLL ACTIVITY"],
+    ["Type", "Count"],
+    ["Active Polls", pollActivity.activePolls],
+    ["Closed Polls", pollActivity.closedPolls],
+    [],
+
+    ["INSIGHTS"],
+    ["Most Active Area", location || "Global"],
+    [
+      "Engagement Level",
+      totals.totalSignatures > 20
+        ? "High"
+        : totals.totalSignatures > 5
+        ? "Medium"
+        : "Low"
+    ],
+    ["Closure Rate", `${closureRate}%`]
+  ];
+
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
+    rows.map((row) => row.join(",")).join("\n");
+
+  const link = document.createElement("a");
+  link.href = encodeURI(csvContent);
+  link.download = `civix_report_${Date.now()}.csv`;
+  link.click();
+};
+
 
   const handleExportPDF = () => {
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text("Civix Reports Dashboard", 20, 20);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const date = new Date().toLocaleString();
 
-    doc.setFontSize(12);
-    doc.text(`Total Petitions: ${totals.totalPetitions}`, 20, 40);
-    doc.text(`Total Polls: ${totals.totalPolls}`, 20, 50);
-    doc.text(`Total Votes: ${totals.totalVotes}`, 20, 60);
-    doc.text(`Total Signatures: ${totals.totalSignatures}`, 20, 70);
+  /* HEADER */
 
-    doc.save("reports.pdf");
-  };
+  doc.setFillColor(59, 130, 246);
+  doc.rect(0, 0, pageWidth, 30, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text("CIVIX PLATFORM", pageWidth / 2, 15, { align: "center" });
+
+  doc.setFontSize(12);
+  doc.text("Civic Engagement Analytics Report", pageWidth / 2, 23, {
+    align: "center"
+  });
+
+  /* RESET COLOR */
+
+  doc.setTextColor(0, 0, 0);
+
+  /* REPORT INFO */
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  doc.text(`Generated on: ${date}`, 20, 45);
+  doc.text(`Date Range: ${days === "all" ? "All Time" : `Last ${days} Days`}`, 20, 52);
+  doc.text(`Location Filter: ${location || "Global"}`, 20, 59);
+
+  /* SUMMARY SECTION */
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Summary Metrics", 20, 75);
+
+  doc.setLineWidth(0.5);
+  doc.line(20, 78, pageWidth - 20, 78);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  let y = 90;
+
+  const metrics = [
+    ["Total Petitions", totals.totalPetitions],
+    ["Total Polls", totals.totalPolls],
+    ["Total Votes", totals.totalVotes],
+    ["Total Signatures", totals.totalSignatures],
+    ["Petition Closure Rate", `${closureRate}%`]
+  ];
+
+  metrics.forEach((row) => {
+    doc.text(row[0], 25, y);
+    doc.text(String(row[1]), pageWidth - 25, y, { align: "right" });
+    y += 10;
+  });
+
+  /* PETITION STATUS */
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Petition Status Overview", 20, y + 10);
+
+  doc.line(20, y + 13, pageWidth - 20, y + 13);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  y += 25;
+
+  const petitionRows = [
+    ["Active Petitions", petitionStatus.active],
+    ["Under Review", petitionStatus.underReview],
+    ["Closed Petitions", petitionStatus.closed]
+  ];
+
+  petitionRows.forEach((row) => {
+    doc.text(row[0], 25, y);
+    doc.text(String(row[1]), pageWidth - 25, y, { align: "right" });
+    y += 10;
+  });
+
+  /* POLL ACTIVITY */
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Poll Activity", 20, y + 10);
+
+  doc.line(20, y + 13, pageWidth - 20, y + 13);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  y += 25;
+
+  const pollRows = [
+    ["Active Polls", pollActivity.activePolls],
+    ["Closed Polls", pollActivity.closedPolls]
+  ];
+
+  pollRows.forEach((row) => {
+    doc.text(row[0], 25, y);
+    doc.text(String(row[1]), pageWidth - 25, y, { align: "right" });
+    y += 10;
+  });
+
+  /* FOOTER */
+
+  doc.setDrawColor(200);
+  doc.line(20, 270, pageWidth - 20, 270);
+
+  doc.setFontSize(10);
+  doc.setTextColor(120);
+
+  doc.text(
+    "Generated by Civix Civic Engagement Platform",
+    pageWidth / 2,
+    280,
+    { align: "center" }
+  );
+
+  doc.save("civix_report.pdf");
+};
 
   return (
     <div className="reports-page">
