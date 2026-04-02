@@ -47,7 +47,7 @@ function Dashboard() {
             {/* Dashboard Home */}
             {isHome && (
               <>
-                <WelcomeCard />
+                <WelcomeCard  user={user}/>
                 {user?.role === "official"
                   ? <OfficialStats />
                   : <StatsSection />
