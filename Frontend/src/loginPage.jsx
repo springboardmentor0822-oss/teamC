@@ -29,6 +29,7 @@ function LoginPage() {
     name: "",
     email: "",
     password: "",
+     ConfirmPassword: "",
     location: "",
     role: "citizen",
     officialId: "",
@@ -98,6 +99,10 @@ function LoginPage() {
       // basic client validation
       if (!formData.password) {
   setError("Password required.");
+  return;
+}
+      if (!isLogin && formData.password !== formData.ConfirmPassword){
+  setError("passwords do not match,");
   return;
 }
 
@@ -273,6 +278,7 @@ if (!isLogin && !validatePassword(formData.password)) {
       name: "",
       email: "",
       password: "",
+       ConfirmPassword: "",
       location: "",
       role: "citizen",
       officialId: "",
@@ -353,6 +359,25 @@ if (!isLogin && !validatePassword(formData.password)) {
       </ul>
     </div>
   )}
+  <label>Confirm Password</label>
+<div className="password-input-row">
+  <input
+    type={showPassword ? "text" : "password"}
+    name="confirmPassword"
+    value={formData.ConfirmPassword}
+    onChange={handleChange}
+    autoComplete="new-password"
+    placeholder="Confirm your password"
+  />
+</div>
+
+{formData.ConfirmPassword &&
+ formData.password !== formData.ConfirmPassword && (
+  <p style={{ color: "red", fontSize: "13px" }}>
+    Passwords do not match
+  </p>
+)}
+
 </div>
 
 
